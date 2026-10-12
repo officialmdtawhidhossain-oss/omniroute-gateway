@@ -1,29 +1,29 @@
 FROM node:22-bullseye-slim
 
-# Install basic build tools and utilities
+# Install basic utilities
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Set up user for Hugging Face Spaces (UID 1000)
+# Setup non-root container user
 RUN useradd -m -u 1000 user
 ENV HOME=/home/user \
     PATH=/home/user/.local/bin:$PATH \
-    PORT=7860 \
     DATA_DIR=/home/user/.omniroute \
     NODE_ENV=production
 
 WORKDIR /home/user/app
 
-# Create data directory with proper permissions
+# Ensure storage directory exists with proper permissions
 RUN mkdir -p /home/user/.omniroute && chown -R user:user /home/user
 
 USER user
 
-# Install omniroute into user's local bin
+# Install omniroute globally for the container user
 RUN npm install -g omniroute --prefix /home/user/.local
 
-EXPOSE 7860
+# Default port (Cloud providers like Render inject dynamic $PORT)
+EXPOSE 20128
 
-CMD ["/home/user/.local/bin/omniroute", "serve", "--port", "7860", "--no-open"]
+CMD ["sh", "-c", "/home/user/.local/bin/omniroute serve --port ${PORT:-20128} --no-open"]
