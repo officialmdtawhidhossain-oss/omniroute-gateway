@@ -3,7 +3,11 @@ FROM node:22-bookworm-slim
 ENV HOME=/home/node \
     PATH=/home/node/.local/bin:$PATH \
     DATA_DIR=/home/node/.omniroute \
-    NODE_ENV=production
+    NODE_ENV=production \
+    NODE_OPTIONS="--max-old-space-size=320" \
+    OMNIROUTE_MEMORY_MB=320 \
+    OMNIROUTE_DISABLE_BACKGROUND_SERVICES=true \
+    DISABLE_SQLITE_AUTO_BACKUP=true
 
 WORKDIR /home/node/app
 
